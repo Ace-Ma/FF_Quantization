@@ -119,18 +119,18 @@ if __name__ == "__main__":
         x_pos = overlay_y_on_x(x, y)
         rnd = torch.randperm(x.size(0))
         x_neg = overlay_y_on_x(x, y[rnd])
-        
-        net_q = torch.ao.quantization.quantize_dynamic(net, {torch.nn.Linear}, dtype=torch.qint8)
+    
 
         before = time.time()
 
-        net_q.train(x_pos, x_neg)
+        net.train(x_pos, x_neg)
 
         time_used = time.time() - before
         print("time used: ", time_used)
-
+        
         print('train error:', 1.0 - net_q.predict(x).eq(y).float().mean().item())
-
+        
+        net_q = torch.ao.quantization.quantize_dynamic(net, {Layer}, dtype=torch.qint8)
         x_te, y_te = next(iter(test_loader))
         x_te, y_te = x_te.cuda(), y_te.cuda()
 
